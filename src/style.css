@@ -1,0 +1,23 @@
+body {
+    overflow: hidden;
+}
+#messageBox {
+    width: 98%;
+    display: flex;
+    position: absolute;
+    bottom: 10px;
+}
+#recaptchaDisclaimer {
+    width: 98%;
+    display: flex;
+    position: absolute;
+    bottom: 12px;
+    color: gray;
+    font-size: 12px;
+}
+#messageInput {
+    flex-grow: 1;
+}
+#messageSendButton {
+    margin: 0px 0px 0px 8px
+}

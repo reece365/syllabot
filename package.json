@@ -1,0 +1,16 @@
+{
+  "name": "syllabus-bot",
+  "version": "1.0.0",
+  "main": "bundle.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "firebase": "^10.13.1",
+    "rollup": "^4.21.2"
+  }
+}
