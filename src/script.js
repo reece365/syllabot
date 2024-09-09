@@ -2,6 +2,7 @@ import { setUserLogHandler } from "@firebase/logger";
 import { initializeApp } from "firebase/app";
 import { getVertexAI, getGenerativeModel } from "firebase/vertexai-preview";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { send } from "process";
 
 // Your web app's Firebase configuration
@@ -30,10 +31,55 @@ const vertexAI = getVertexAI(firebaseApp);
 
 const model = getGenerativeModel(vertexAI, { model: "gemini-1.5-flash" });
 
-async function runModel(prompt) {
-    const imagePart = { fileData: { mimeType: "application/pdf", fileUri: "gs://mysyllabusbot.appspot.com/MATH108170.pdf" }};
+let syllabusCache = null;
+
+async function fetchSyllabus(fileName) { 
+    let base64Data = null;
+
+    const storage = getStorage(firebaseApp);
+    const fileRef = ref(storage, "MATH108170.pdf");
+    const downloadURL = await getDownloadURL(fileRef);
+    const response = await fetch(downloadURL);
+    const fileBlob = await response.blob();
     
-    const result = await model.generateContent([prompt]);
+    if (syllabusCache === null) {
+        base64Data = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result.split(",")[1];
+                syllabusCache = base64String;
+                resolve(base64String);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(fileBlob);
+        });
+    } else {
+        base64Data = syllabusCache;
+    }
+
+    return base64Data;
+}
+
+window.fetchSyllabus = fetchSyllabus;
+
+// Parse markdown-style text formatting into HTML
+function parseTextStyle(text) {
+    const boldRegex = /\*\*(.*?)\*\*/g;
+    const italicRegex = /\*(.*?)\*/g;
+    const underlineRegex = /__(.*?)__/g;
+    const strikethroughRegex = /~~(.*?)~~/g;
+
+    text = text.replace(boldRegex, "<b>$1</b>");
+    text = text.replace(italicRegex, "<i>$1</i>");
+    text = text.replace(underlineRegex, "<u>$1</u>");
+    text = text.replace(strikethroughRegex, "<s>$1</s>");
+
+    return text;
+}
+    
+
+async function runModel(prompt) {
+    const result = await model.generateContent([{ inlineData: { data: await fetchSyllabus(), mimeType: "application/pdf" }}, prompt]);
 
     const response = result.response;
     const text = response.text();
@@ -45,7 +91,7 @@ function createChatText(text, direction) {
     const chatDiv = document.getElementById("chatDiv");
     const chatText = document.createElement("p");
     
-    chatText.innerText = text;
+    chatText.innerHTML = parseTextStyle(text);
     chatText.style.textAlign = direction;
 
     chatDiv.appendChild(chatText);

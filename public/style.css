@@ -1,10 +1,12 @@
 body {
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding-bottom: 24px;
 }
 #messageBox {
     width: 98%;
     display: flex;
-    position: absolute;
+    position: fixed;
     bottom: 10px;
 }
 #recaptchaDisclaimer {
