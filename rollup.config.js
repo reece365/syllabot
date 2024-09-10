@@ -12,7 +12,8 @@ export default {
     // Configure Rollup to convert your module code to a scoped function
     // that "immediate invokes". See the Rollup documentation for more
     // information: https://rollupjs.org/guide/en/#outputformat
-    format: 'iife'
+    format: 'iife',
+    compact: true
   },
   // Add the plugin to map import paths to dependencies
   // installed with npm
