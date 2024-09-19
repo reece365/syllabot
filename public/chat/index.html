@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <link rel="icon" href="../syllabot-favicon.svg">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+        
+        <title id="title">Chat with Syllabot</title>
+        <div id="titleBarDiv">
+            <div id="titleBarContentDiv">
+                <img id="wordmark" src="../syllabot-wordmark-light.svg"><img>
+                <h2 id="courseTitle"></h1>
+            </div>
+        </div>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body>
+        <script src="bundle.js"></script>
+        
+        <div id="chatDiv">
+            <div class="botMessage" style="justify-self: start;">Hello, I'm Syllabot! I can answer questions about your class, help you understand assignments, and more! Type a message below or click a suggestion to get started!</div>
+            <div id="anchor"></div>
+        </div>
+        <div id="messageBox">
+            <div id="suggestionCards">
+                <div class="suggestionCard">
+                    <p>What's the grading policy?</p>
+                </div>
+                <div class="suggestionCard">
+                    <p>When are office hours?</p>
+                </div>
+                <div class="suggestionCard">
+                    <p>Break down the next project into steps</p>
+                </div>
+            </div> 
+            <div id="messageBoxContent">
+                <input id="messageInput" type="text" autofocus></input>
+                <button id="messageSendButton" onclick="sendUserPrompt()" accesskey="Enter">
+                    <img src="../send.svg" id="sendIcon">
+                </button>
+            </div>
+            <p id="disclaimer">AI-powered responses can be innacurate. Still unsure? <a href="#" onclick="() => {messasendUserPrompt();}">Contact your professor!</a></p>
+        </div>
+    </body>
+</html>

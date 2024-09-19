@@ -1,6 +1,6 @@
 [
     {
-      "origin": ["https://mysyllabusbot.web.app"],
+      "origin": ["https://syllabot.web.app"],
       "method": ["GET"],
       "maxAgeSeconds": 3600
     }
