@@ -29,6 +29,13 @@ let courseInfo = null;
 
 let syllabusData = null;
 
+let chatHistory = [
+    {
+      role: "user",
+      parts: [{ text: "Hello Syllabot!" }],
+    }
+];
+
 async function fetchCourseInformation() {
     // Get the query string "courseID" from the URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -179,15 +186,7 @@ function weekOfDate(startOfWeek) {
     
 
 async function runModel(textPrompt) {
-    const model = getGenerativeModel(vertexAI, {
-        model: "gemini-1.5-flash",
-        systemInstruction: `You are SyllabusBot, a chatbot designed to help students answer questions about the ${(await courseInfo).name} syllabus
-            You have been provided with the syllabus for this course. For each prompt, find the relevant information in the syllabus and provide the answer
-            The current date is ${new Date().toLocaleDateString()}
-            The professor of this class is ${await courseInfo.professor}
-            Respond in and format responses as markdown, using this format for bold, italics, and lists`
-    });
-    const result = await model.generateContentStream(
+    const result = await chat.sendMessageStream(
         [
             { 
                 inlineData: { 
@@ -275,6 +274,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     syllabusData = fetchSyllabus((await courseInfo).syllabus_uri);
+
+    const model = getGenerativeModel(vertexAI, {
+        model: "gemini-1.5-flash",
+        systemInstruction: `You are SyllabusBot, a chatbot designed to help students answer questions about the ${(await courseInfo).name} syllabus. You have been provided with the syllabus for this course. For each prompt, find the relevant information in the syllabus and provide the answer. The current date is ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric"}) }. Respond in and format responses as markdown, using this format for bold, italics, and lists.`
+    });
+
+    window.model = model;
+
+    const chat = model.startChat({
+        history: chatHistory,
+        generationConfig: {
+            maxOutputTokens: 512,
+        }
+    });
+
+    window.chat = chat;
 
     // Trigger on user pressing enter
     messageBox.addEventListener('keydown', function(event) {
