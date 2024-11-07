@@ -219,6 +219,11 @@ function createChatText(text, direction) {
     }
 
     chatDiv.insertBefore(chatText, chatDiv.children[chatDiv.children.length - 1])
+
+    chatHistory.push({
+        role: direction === "left" ? "user" : "model",
+        parts: [{ text: text }],
+    });
 }
 
 function createChatStream(chunk, direction) {
@@ -248,6 +253,11 @@ function endChatStream() {
     const chunkedText = document.getElementById("chunkedText");
     chunkedText.innerHTML = parseTextStyle(chunkedText.innerHTML);
     chunkedText.id = null;
+
+    chatHistory.push({
+        role: "model",
+        parts: [{ text: chunkedText.innerText }],
+    });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
