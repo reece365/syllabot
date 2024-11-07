@@ -186,6 +186,22 @@ function weekOfDate(startOfWeek) {
     
 
 async function runModel(textPrompt) {
+    const chatDiv = document.getElementById("chatDiv");
+
+    const chunkedTextElem = document.createElement("div");
+
+    chunkedTextElem.className = "botMessage";
+
+    const loadingDiv = document.createElement("div");
+    const loadingElem = document.createElement("span");
+
+    loadingDiv.classList.add("loaderContainer");
+    loadingElem.classList.add("loader");
+    loadingDiv.appendChild(loadingElem);
+    chunkedTextElem.appendChild(loadingDiv);
+
+    chatDiv.appendChild(chunkedTextElem);
+
     const result = await chat.sendMessageStream(
         [
             { 
@@ -199,10 +215,12 @@ async function runModel(textPrompt) {
     );
 
     for await (const chunk of result.stream) {
-        createChatStream(chunk.text(), "left");
+        loadingDiv.style.display = "none";
+        createChatStream(chunk.text(), "left", chunkedTextElem);
     }
 
     endChatStream();
+
 }
 
 function createChatText(text, direction) {
@@ -218,7 +236,7 @@ function createChatText(text, direction) {
         chatText.className = "botMessage";
     }
 
-    chatDiv.insertBefore(chatText, chatDiv.children[chatDiv.children.length - 1])
+    chatDiv.append(chatText);
 
     chatHistory.push({
         role: direction === "left" ? "user" : "model",
@@ -226,23 +244,13 @@ function createChatText(text, direction) {
     });
 }
 
-function createChatStream(chunk, direction) {
-    const chatDiv = document.getElementById("chatDiv");
+function createChatStream(chunk, direction, chunkedTextElem) {
 
     if (document.getElementById("chunkedText") === null) {
-        const chunkedText = document.createElement("div");
-        
-        chunkedText.innerHTML += parseTextStyle(chunk);
-        chunkedText.style.textAlign = direction;
-        chunkedText.id = "chunkedText";
-        
-        if (direction === "right") {
-            chunkedText.className = "userMessage";
-        } else {
-            chunkedText.className = "botMessage";
-        }
 
-        chatDiv.insertBefore(chunkedText, chatDiv.children[chatDiv.children.length - 1]);
+        chunkedTextElem.innerHTML += parseTextStyle(chunk);
+        chunkedTextElem.style.textAlign = direction;
+        chunkedTextElem.id = "chunkedText";
     } else {
         const chunkedText = document.getElementById("chunkedText");
         chunkedText.innerHTML += chunk;
