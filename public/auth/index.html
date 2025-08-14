@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="icon" href="../syllabot-favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <title>Sign In - Syllabot</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <script src="bundle.js"></script>
+    <div id="authRoot">
+      <div class="panel">
+        <img id="wordmark" src="../syllabot-wordmark-light.svg">
+        <h3>Sign In</h3>
+        <p class="hint">Sign in to manage your classes.</p>
+        <div id="authForms">
+          <div id="emailAuth" class="auth-form">
+            <label>Email<input type="email" id="emailInput" autocomplete="email"></label>
+            <label>Password<input type="password" id="passwordInput" autocomplete="current-password"></label>
+            <div class="formActions">
+              <button id="emailSignInBtn">Sign In</button>
+              <button id="emailSignUpBtn" class="secondary">Sign Up</button>
+            </div>
+          </div>
+          <div id="providerAuth">
+            <button id="googleSignInBtn">Sign in with Google</button>
+          </div>
+        </div>
+        <p id="authError" class="error-message" style="display:none;"></p>
+      </div>
+    </div>
+  </body>
+</html>

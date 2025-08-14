@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="icon" href="../syllabot-favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+    <title id="title">Syllabot Management</title>
+    <div id="titleBarDiv">
+      <div id="titleBarContentDiv">
+        <img id="wordmark" src="../syllabot-wordmark-light.svg"><img>
+        <h2 id="pageTitle">Management</h2>
+      </div>
+    </div>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <script src="bundle.js"></script>
+
+    <div id="managementRoot">
+      <div class="panel">
+        <h3>Select School</h3>
+        <p class="hint">Choose your institution to manage its classes.</p>
+        <select id="schoolSelect">
+          <option value="" disabled selected>Loading schools…</option>
+        </select>
+      </div>
+
+      <div class="panel" id="authPanel">
+        <h3>Authorization</h3>
+        <p class="hint">Only authorized users may edit class data.</p>
+
+        <div id="authForms">
+            <div id="emailAuth" class="auth-form">
+                <label>Email<input type="email" id="emailInput" autocomplete="email"></label>
+                <label>Password<input type="password" id="passwordInput" autocomplete="current-password"></label>
+                <div class="formActions">
+                    <button id="emailSignInBtn">Sign In</button>
+                    <button id="emailSignUpBtn" class="secondary">Sign Up</button>
+                </div>
+            </div>
+            <div id="providerAuth">
+                <button id="googleSignInBtn">Sign in with Google</button>
+            </div>
+        </div>
+
+        <div id="authStatusContainer" style="display:none;">
+            <p id="authStatus" class="hint"></p>
+            <button id="signOutBtn">Sign out</button>
+        </div>
+      </div>
+
+      <div class="panel" id="classesPanel" style="display:none">
+        <div class="panelHeader">
+          <h3>Classes</h3>
+          <button id="newClassBtn">New Class</button>
+        </div>
+        <div id="classesList" class="list"></div>
+      </div>
+
+      <div class="panel" id="editorPanel" style="display:none">
+        <h3 id="editorTitle">Create / Edit Class</h3>
+        <form id="classForm">
+          <label>
+            Name
+            <input type="text" id="className" required />
+          </label>
+          <label>
+            Section
+            <input type="text" id="classSection" />
+          </label>
+          <label>
+            Syllabus file (PDF in Storage)
+            <input type="text" id="syllabusUri" placeholder="/schools/{schoolId}/classes/{classId}/syllabus.pdf" />
+          </label>
+          <label>
+            Notes (Markdown)
+            <textarea id="classNotes" rows="6" placeholder="Markdown allowed"></textarea>
+          </label>
+          <label>
+            Editors (comma-separated emails)
+            <input type="text" id="classEditors" placeholder="alice@example.com, bob@example.com" />
+            <span class="hint">Only listed emails can edit this class.</span>
+          </label>
+          <div class="formActions">
+            <button type="submit" id="saveClassBtn">Save</button>
+            <button type="button" id="deleteClassBtn" class="danger" style="display:none">Delete</button>
+            <button type="button" id="cancelEditBtn" class="secondary">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

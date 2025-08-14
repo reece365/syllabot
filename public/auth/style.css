@@ -1,0 +1,57 @@
+@import url('../chat/style.css');
+
+:root {
+  --panel-bg: #101219;
+  --panel-border: #2a2f3a;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  margin: 0;
+  color: #fff;
+  background: #0b0e14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+#authRoot {
+  max-width: 400px;
+  width: 100%;
+  padding: 16px;
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+#wordmark {
+  height: 40px;
+  margin-bottom: 16px;
+}
+
+#authForms { display: grid; gap: 16px; margin-top: 16px; }
+.auth-form .formActions { display: flex; gap: 8px; justify-content: center; }
+
+label { display: grid; gap: 6px; margin: 10px 0; text-align: left; }
+input { background: #0b0e14; color: #fff; border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px; }
+
+button {
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #4c82f0;
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  width: 100%;
+}
+
+button.secondary { background: #2e3440; }
+.error-message { color: #d14b4b; }
+.hint { color: #c0c7d1; font-size: 0.9rem; }

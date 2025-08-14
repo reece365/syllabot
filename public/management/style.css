@@ -1,0 +1,59 @@
+@import url('../chat/style.css');
+
+:root {
+  --panel-bg: #101219;
+  --panel-border: #2a2f3a;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  margin: 0;
+  color: #fff;
+  background: #0b0e14;
+}
+
+#managementRoot {
+  max-width: 900px;
+  margin: 80px auto 40px auto;
+  padding: 0 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.panelHeader { display: flex; justify-content: space-between; align-items: center; }
+
+.list { display: grid; gap: 8px; }
+.list .item { padding: 12px; border: 1px solid var(--panel-border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+.item-actions { display: flex; gap: 8px; }
+
+#authForms { display: grid; gap: 16px; }
+.auth-form .formActions { display: flex; gap: 8px; }
+
+label { display: grid; gap: 6px; margin: 10px 0; }
+input, textarea, select { background: #0b0e14; color: #fff; border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px; }
+
+button, a.btn {
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #4c82f0;
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+button.secondary, a.btn.secondary { background: #2e3440; }
+button.danger { background: #d14b4b; }
+
+.hint { color: #c0c7d1; font-size: 0.9rem; }

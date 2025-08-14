@@ -4,6 +4,9 @@ import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyA2E_U5N09zCVHdIecaFuIeDRuUWNX8xNg",
@@ -158,20 +161,23 @@ async function fetchSyllabus(filePath) {
 }
 
 // Parse markdown-style text formatting into HTML
-function parseTextStyle(text) {
-    console.log(text);
+function renderMarkdownToHtml(markdown) {
+    // Use marked to parse markdown to HTML, then sanitize with DOMPurify
+    try {
+        // marked.parse will convert full markdown (with paragraphs, lists, etc.) into HTML
+        const rawHtml = marked.parse(typeof markdown === 'string' ? markdown : String(markdown));
+        return DOMPurify.sanitize(rawHtml, {ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'title']});
+    } catch (e) {
+        console.error('Markdown render error', e);
+        return DOMPurify.sanitize(String(markdown));
+    }
+}
 
-    // Regular expressions for different markdown styles
-    const boldRegex = /\*\*(.*?)\*\*/g;
-    const italicRegex = /\*(.*?)\*/g;
-    const newlineRegex = /\n/g;
-
-    // Replace markdown styles with HTML tags
-    text = text.replace(boldRegex, "<b>$1</b>");
-    text = text.replace(italicRegex, "<i>$1</i>");
-    text = text.replace(newlineRegex, "<br>");
-
-    return text;
+// Utility to extract plain text from HTML (for chatHistory storage)
+function extractPlainTextFromHtml(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html || '';
+    return tmp.textContent || tmp.innerText || '';
 }
 
 // Return the date of the Monday of the current week
@@ -227,7 +233,10 @@ function createChatText(text, direction) {
     const chatDiv = document.getElementById("chatDiv");
     const chatText = document.createElement("div");
     
-    chatText.innerHTML = parseTextStyle(text);
+    // Render markdown -> sanitized HTML
+    const html = renderMarkdownToHtml(text);
+
+    chatText.innerHTML = html;
     chatText.style.textAlign = direction;
     
     if (direction === "left") {
@@ -238,33 +247,54 @@ function createChatText(text, direction) {
 
     chatDiv.append(chatText);
 
+    // Store plaintext in history to avoid embedding HTML in the stored conversation
     chatHistory.push({
         role: direction === "left" ? "user" : "model",
-        parts: [{ text: text }],
+        parts: [{ text: extractPlainTextFromHtml(html) }],
     });
 }
 
 function createChatStream(chunk, direction, chunkedTextElem) {
 
+    // chunk is streaming markdown text. We'll render incrementally but always sanitize.
     if (document.getElementById("chunkedText") === null) {
+        // First chunk: create an inner container to hold incremental HTML
+        const inner = document.createElement('div');
+        inner.className = 'chunked-inner';
+        inner.style.textAlign = direction;
+        inner.innerHTML = renderMarkdownToHtml(chunk);
 
-        chunkedTextElem.innerHTML += parseTextStyle(chunk);
-        chunkedTextElem.style.textAlign = direction;
+        chunkedTextElem.appendChild(inner);
         chunkedTextElem.id = "chunkedText";
     } else {
-        const chunkedText = document.getElementById("chunkedText");
-        chunkedText.innerHTML += chunk;
+        const chunkedInner = document.querySelector('#chunkedText .chunked-inner');
+        if (!chunkedInner) return;
+
+        // Append the new chunk. Use marked.parseInline to avoid breaking surrounding structure when streaming small pieces.
+        try {
+            const inlineHtml = marked.parseInline(chunk || '');
+            chunkedInner.innerHTML += DOMPurify.sanitize(inlineHtml, {ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'title']});
+        } catch (e) {
+            // Fallback: append as text
+            chunkedInner.innerText += chunk;
+        }
     }
 }
 
 function endChatStream() {
-    const chunkedText = document.getElementById("chunkedText");
-    chunkedText.innerHTML = parseTextStyle(chunkedText.innerHTML);
-    chunkedText.id = null;
+    const chunkedInner = document.querySelector('#chunkedText .chunked-inner');
+    if (!chunkedInner) return;
+
+    // Final sanitize and ensure proper HTML
+    chunkedInner.innerHTML = DOMPurify.sanitize(chunkedInner.innerHTML, {ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'title']});
+
+    // Remove the id to allow subsequent streams
+    const parent = document.getElementById('chunkedText');
+    if (parent) parent.id = '';
 
     chatHistory.push({
         role: "model",
-        parts: [{ text: chunkedText.innerText }],
+        parts: [{ text: extractPlainTextFromHtml(chunkedInner.innerHTML) }],
     });
 }
 
@@ -294,7 +324,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     syllabusData = fetchSyllabus((await courseInfo).syllabus_uri);
 
     const model = getGenerativeModel(vertexAI, {
-        model: "gemini-1.5-flash",
+        model: "gemini-2.5-flash",
         systemInstruction: `You are SyllabusBot, a chatbot designed to help students answer questions about the ${(await courseInfo).name} syllabus. You have been provided with the syllabus for this course. For each prompt, find the relevant information in the syllabus and provide the answer. The current date is ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric"}) }. Respond in and format responses as markdown, using this format for bold, italics, and lists.`
     });
 

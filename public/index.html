@@ -1,14 +1,30 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title id="title">Course Directory</title>
-        <h1 id="courseTitle">SyllabusBot Course Directory</h1>
-        <link rel="stylesheet" type="text/css" href="style.css">
-    </head>
-    <body>
-        <script src="bundle.js"></script>
-        
-        <a href="/chat?schoolID=Hk8hhUusiIaKFyDaIGk1&courseID=hmJxXtf18FXapif4v5mn">Calculus I - 1081.70</a> <br/>
-        <a href="/chat?schoolID=Hk8hhUusiIaKFyDaIGk1&courseID=7ImUobFBHBRO3O3jz04H">Fundamentals of Public Speaking - 1081.70</a>
-    </body>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="icon" href="../syllabot-favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+    <title id="title">Syllabot</title>
+    <div id="titleBarDiv">
+      <div id="titleBarContentDiv">
+        <img id="wordmark" src="../syllabot-wordmark-light.svg"><img>
+        <h2 id="pageTitle">Choose a school</h2>
+      </div>
+    </div>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <script src="bundle.js"></script>
+
+    <div id="landingRoot">
+      <div class="panel">
+        <h3>Schools</h3>
+        <div id="schoolsList" class="list"></div>
+      </div>
+    </div>
+  </body>
 </html>
