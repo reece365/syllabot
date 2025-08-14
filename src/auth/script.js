@@ -1,5 +1,5 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { initializeApp, getApp, getApps } from "firebase/app";
+import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA2E_U5N09zCVHdIecaFuIeDRuUWNX8xNg",
@@ -10,8 +10,17 @@ const firebaseConfig = {
   appId: "1:326497831637:web:34d6cdc687a3b6a281f05c"
 };
 
-const app = initializeApp(firebaseConfig, 'auth');
-const auth = getAuth(app);
+const firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+
+// Initialize Auth with robust persistence fallbacks.
+let auth;
+try {
+  auth = initializeAuth(firebaseApp, {
+    persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence]
+  });
+} catch (e) {
+  auth = getAuth(firebaseApp);
+}
 
 function $(id) { return document.getElementById(id); }
 
@@ -53,7 +62,7 @@ function wireAuth() {
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      window.location.href = getRedirectUrl();
+      window.location.replace(getRedirectUrl());
     }
   });
 }

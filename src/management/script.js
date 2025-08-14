@@ -1,6 +1,6 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp, getApps } from "firebase/app";
 import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, getDoc, query, where } from "firebase/firestore";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth";
 
 // Reuse same config as chat
 const firebaseConfig = {
@@ -12,9 +12,20 @@ const firebaseConfig = {
   appId: "1:326497831637:web:34d6cdc687a3b6a281f05c"
 };
 
-const firebaseApp = initializeApp(firebaseConfig, 'management');
+const firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(firebaseApp);
-const auth = getAuth(firebaseApp);
+
+// Initialize Auth with robust persistence fallbacks.
+let auth;
+try {
+  auth = initializeAuth(firebaseApp, {
+    persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence]
+  });
+} catch (e) {
+  // initializeAuth throws if called more than once for an app; fall back to getAuth
+  auth = getAuth(firebaseApp);
+}
+
 const ADMIN_UID = '21iGoj0VLDeLXyPq7K6aGDrVQIo2';
 
 const state = {
@@ -189,54 +200,13 @@ async function deleteClass() {
   await loadClasses();
 }
 
-function wireAuth() {
-  const provider = new GoogleAuthProvider();
-  $('googleSignInBtn').addEventListener('click', async () => {
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      console.error('Auth error', err);
-      alert('Sign-in failed: ' + (err?.message || err));
-    }
-  });
-
-  const handleEmailAuth = async (isSignUp) => {
-    const email = $('emailInput').value;
-    const password = $('passwordInput').value;
-    if (!email || !password) {
-      alert('Please enter email and password.');
-      return;
-    }
-    try {
-      if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
-    } catch (err) {
-      console.error('Email auth error', err);
-      alert(`Auth failed: ${err.message}`);
-    }
-  };
-
-  $('emailSignInBtn').addEventListener('click', () => handleEmailAuth(false));
-  $('emailSignUpBtn').addEventListener('click', () => handleEmailAuth(true));
-  $('signOutBtn').addEventListener('click', () => signOut(auth));
-
-  onAuthStateChanged(auth, (user) => {
-    state.user = user || null;
-    $('authStatus').textContent = user ? `Signed in as ${user.email}` : 'Not signed in';
-    $('authForms').style.display = user ? 'none' : 'grid';
-    $('authStatusContainer').style.display = user ? 'block' : 'none';
-    $('classesPanel').style.display = user && state.selectedSchoolId ? 'block' : 'none';
-  });
-}
-
 function wireUi() {
   $('schoolSelect').addEventListener('change', async (e) => {
     state.selectedSchoolId = e.target.value;
-    $('classesPanel').style.display = state.user ? 'block' : 'none';
-    await loadClasses();
+    if (state.user) {
+        $('classesPanel').style.display = 'block';
+        await loadClasses();
+    }
   });
 
   $('newClassBtn').addEventListener('click', startCreate);
@@ -245,10 +215,38 @@ function wireUi() {
   $('deleteClassBtn').addEventListener('click', deleteClass);
 }
 
-async function main() {
-  wireAuth();
+async function initManagementApp() {
+  // Wire up the main UI elements
   wireUi();
+
+  // Set up the sign-out button
+  const signOutBtn = $('signOutBtn');
+  if (signOutBtn) {
+    signOutBtn.style.display = 'block';
+    signOutBtn.addEventListener('click', () => signOut(auth));
+  }
+
+  // Update the auth status display
+  const authStatus = $('authStatus');
+  if (authStatus) {
+    authStatus.textContent = `Signed in as ${state.user.email}`;
+  }
+
+  // Load the initial school data
   await loadSchools();
 }
 
-document.addEventListener('DOMContentLoaded', main);
+document.addEventListener('DOMContentLoaded', () => {
+  // Wait for initial auth state to resolve before deciding to redirect.
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in, store the user state and initialize the app.
+      state.user = user;
+      initManagementApp();
+    } else {
+      // Not signed in; redirect to auth with callback to this page.
+      const redirectUrl = encodeURIComponent(window.location.href);
+      window.location.href = `/auth/?redirect=${redirectUrl}`;
+    }
+  });
+});

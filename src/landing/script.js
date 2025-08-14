@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp, getApps } from "firebase/app";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -10,8 +10,8 @@ const firebaseConfig = {
   appId: "1:326497831637:web:34d6cdc687a3b6a281f05c"
 };
 
-const app = initializeApp(firebaseConfig, 'landing');
-const db = getFirestore(app);
+const firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const db = getFirestore(firebaseApp);
 
 function $(id) { return document.getElementById(id); }
 

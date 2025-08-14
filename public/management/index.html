@@ -12,7 +12,10 @@
     <div id="titleBarDiv">
       <div id="titleBarContentDiv">
         <img id="wordmark" src="../syllabot-wordmark-light.svg"><img>
-        <h2 id="pageTitle">Management</h2>
+        <div class="title-bar-actions">
+            <p id="authStatus" class="hint"></p>
+            <button id="signOutBtn" style="display:none;">Sign out</button>
+        </div>
       </div>
     </div>
     <link rel="stylesheet" type="text/css" href="style.css">
@@ -27,30 +30,6 @@
         <select id="schoolSelect">
           <option value="" disabled selected>Loading schools…</option>
         </select>
-      </div>
-
-      <div class="panel" id="authPanel">
-        <h3>Authorization</h3>
-        <p class="hint">Only authorized users may edit class data.</p>
-
-        <div id="authForms">
-            <div id="emailAuth" class="auth-form">
-                <label>Email<input type="email" id="emailInput" autocomplete="email"></label>
-                <label>Password<input type="password" id="passwordInput" autocomplete="current-password"></label>
-                <div class="formActions">
-                    <button id="emailSignInBtn">Sign In</button>
-                    <button id="emailSignUpBtn" class="secondary">Sign Up</button>
-                </div>
-            </div>
-            <div id="providerAuth">
-                <button id="googleSignInBtn">Sign in with Google</button>
-            </div>
-        </div>
-
-        <div id="authStatusContainer" style="display:none;">
-            <p id="authStatus" class="hint"></p>
-            <button id="signOutBtn">Sign out</button>
-        </div>
       </div>
 
       <div class="panel" id="classesPanel" style="display:none">

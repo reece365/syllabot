@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp, getApps } from "firebase/app";
 import { getVertexAI, getGenerativeModel } from "firebase/vertexai-preview";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
@@ -18,7 +18,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const firebaseApp = initializeApp(firebaseConfig);
+const firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 // Configure app attestation via reCAPTCHA v3
 const appCheck = initializeAppCheck(firebaseApp, {
