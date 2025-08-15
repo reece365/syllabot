@@ -1,5 +1,5 @@
 import { initializeApp, getApp, getApps } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, browserPopupRedirectResolver } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA2E_U5N09zCVHdIecaFuIeDRuUWNX8xNg",
@@ -12,15 +12,18 @@ const firebaseConfig = {
 
 const firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Auth with robust persistence fallbacks.
+// Initialize Auth with robust persistence fallbacks and popup resolver for web.
 let auth;
-try {
-  auth = initializeAuth(firebaseApp, {
-    persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence]
-  });
-} catch (e) {
-  auth = getAuth(firebaseApp);
-}
+auth = (() => {
+  try {
+    return initializeAuth(firebaseApp, {
+      persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence],
+      popupRedirectResolver: browserPopupRedirectResolver,
+    });
+  } catch (e) {
+    return getAuth(firebaseApp);
+  }
+})();
 
 function $(id) { return document.getElementById(id); }
 
@@ -37,7 +40,13 @@ function showError(message) {
 
 function wireAuth() {
   const provider = new GoogleAuthProvider();
-  $('googleSignInBtn').addEventListener('click', () => signInWithPopup(auth, provider));
+  $('googleSignInBtn').addEventListener('click', async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      showError(err.message || String(err));
+    }
+  });
 
   const handleEmailAuth = async (isSignUp) => {
     const email = $('emailInput').value;
